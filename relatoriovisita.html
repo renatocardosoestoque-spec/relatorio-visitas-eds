@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Relatório de Visitas EDS | Sistema Comercial</title>
+    <!-- Google Fonts + Flatpickr (Calendário Moderno) + SweetAlert2 (Popups bonitos) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- html2canvas + jspdf para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0f0df 0%, #c8e0c4 100%);
+            font-family: 'Inter', sans-serif;
+            padding: 32px 24px;
+        }
+
+        /* Container principal estilo glassmorphism */
+        .glass-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(0px);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0, 32, 0, 0.35);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* Header elegante */
+        .hero-header {
+            background: linear-gradient(120deg, #0f4024, #1f7542);
+            padding: 2rem 2.5rem;
+            color: white;
+        }
+        .hero-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hero-header p {
+            opacity: 0.85;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        /* formulário principal */
+        .form-panel {
+            padding: 2rem 2.5rem;
+            background: #ffffff;
+            border-bottom: 1px solid #e2f0de;
+        }
+
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2e6b3e;
+            margin-bottom: 8px;
+        }
+
+        .input-group select, 
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 28px;
+            border: 1.5px solid #cfebcc;
+            background: #fefefc;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        .input-group select:focus, 
+        .input-group input:focus {
+            border-color: #1f7542;
+            box-shadow: 0 0 0 3px rgba(31,117,66,0.2);
+        }
+
+        .btn-primary {
+            background: #1f7542;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .btn-primary:hover {
+            background: #0e5a34;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: white;
+            border: 1.5px solid #c2e0bc;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1f7542;
+            cursor: pointer;
+        }
+        .status-badge {
+            background: #ecf9e6;
+            border-radius: 60px;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1a5e38;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* cards de visita com design clean */
+        .visit-card {
+            background: #ffffff;
+            border-radius: 32px;
+            margin: 1.5rem 2.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e0f0db;
+            transition: all 0.2s;
+        }
+        .visit-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: #1b4e2d;
+        }
+        .grid-5 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        .grid-5 .field {
+            flex: 1 1 180px;
+        }
+        .field {
+            position: relative;
+        }
+        .field label {
+            font-weight: 500;
+            font-size: 0.7rem;
+            color: #587a4b;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .field input, .field select, .field textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 24px;
+            border: 1px solid #d4eace;
+            font-family: 'Inter', monospace;
+            background: #fefef8;
+        }
+        .city-suggest {
+            position: absolute;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            width: 100%;
+            z-index: 50;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #bdddb3;
+        }
+        .city-suggest div {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .city-suggest div:hover {
+            background: #e0f5da;
+        }
+        .btn-salvar {
+            background: #2b8c4a;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 32px;
+            color: white;
+            font-weight: 600;
+        }
+        .btn-cancelar {
+            background: #f1f3ef;
+            border: 1px solid #cbdcc5;
+            padding: 8px 22px;
+            border-radius: 32px;
+        }
+
+        .relatorio-tabela {
+            margin: 0 2rem 2rem 2rem;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        th {
+            background: #e0f0da;
+            padding: 14px 10px;
+            font-weight: 700;
+            color: #1f5837;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #dfefd8;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin: 0 2rem 2rem 2rem;
+        }
+        footer {
+            background: #f4fbf0;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.7rem;
+            color: #527a45;
+            border-top: 1px solid #e0f0da;
+        }
+        @media (max-width: 760px) {
+            .form-panel { padding: 1.5rem; }
+            .visit-card { margin: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="glass-container" id="reportContainer">
+    <div class="hero-header">
+        <h1>🌿 Relatório de Visitas EDS</h1>
+        <p>Gestão inteligente de atendimentos | Vendedores Gaúchos</p>
+    </div>
+
+    <div class="form-panel">
+        <div class="flex-row">
+            <div class="input-group">
+                <label>👤 VENDEDOR *</label>
+                <select id="vendedorSelect">
+                    <option value="">-- Selecione o vendedor --</option>
+                    <option value="ALESSANDRO">ALESSANDRO</option>
+                    <option value="DELOI PLATEN">DELOI PLATEN</option>
+                    <option value="FÁBIO LIMA DE ALMEIDA">FÁBIO LIMA DE ALMEIDA</option>
+                    <option value="RENATO CARDOSO">RENATO CARDOSO</option>
+                    <option value="GIAN">GIAN</option>
+                    <option value="LUIS OTAVIO">LUIS OTAVIO</option>
+                    <option value="SÉRGIO">SÉRGIO</option>
+                    <option value="RAFAEL">RAFAEL</option>
+                    <option value="EVERTON">EVERTON</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>📅 DATA INÍCIAL (PERÍODO)</label>
+                <input type="text" id="dataInicial" placeholder="dd/mm/aaaa" readonly>
+            </div>
+            <div class="input-group">
+                <label>📅 DATA FINAL (PERÍODO)</label>
+                <input type="text" id="dataFinal" placeholder="dd/mm/aaaa" readonly>
+            </div>
+            <div class="input-group">
+                <label>&nbsp;</label>
+                <button class="btn-primary" id="definirPeriodoBtn">✅ CONFIRMAR PERÍODO</button>
+            </div>
+        </div>
+        <div id="periodoStatus" class="status-badge">⏳ Nenhum período definido</div>
+    </div>
+
+    <!-- Botão + cards dinâmicos -->
+    <div style="margin: 0.5rem 2.5rem;">
+        <button class="btn-primary" id="addVisitaBtn" style="background: #2b6e42;">+ Adicionar visita / atendimento</button>
+    </div>
+    <div id="registrosDinamicos"></div>
+
+    <!-- Área de relatório final -->
+    <div id="relatorioArea" style="display: none;">
+        <h3 style="margin: 1rem 2.5rem 0; font-weight:600;">📋 Registros realizados no período</h3>
+        <div class="relatorio-tabela">
+            <table id="relatorioTable">
+                <thead>
+                    <tr><th>Vendedor</th><th>Data</th><th>Dia semana</th><th>Cidade</th><th>Cliente</th><th>Contato</th><th>Motivo</th><th>Descrição</th></tr>
+                </thead>
+                <tbody id="relatorioBody"></tbody>
+            </table>
+        </div>
+        <div class="toolbar">
+            <button class="btn-primary" id="exportPDFBtn">📄 GERAR PDF COMPLETO</button>
+            <button class="btn-secondary" id="limparTodosBtn">🗑️ Limpar histórico</button>
+        </div>
+    </div>
+    <footer>Base com 497 municípios do RS | Datas no formato brasileiro (dd/mm/aaaa) | Calendário visual aprimorado</footer>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // LISTA OFICIAL DE MUNICÍPIOS (497)
+    // --------------------------------------------------------------
+    const municipiosRS = [
+        "Aceguá","Água Santa","Agudo","Ajuricaba","Alecrim","Alegrete","Alegria","Almirante Tamandaré do Sul",
+        "Alpestre","Alto Alegre","Alto Feliz","Alvorada","Amaral Ferrador","Ametista do Sul","André da Rocha",
+        "Anta Gorda","Antônio Prado","Arambaré","Araricá","Aratiba","Arroio do Meio","Arroio do Padre",
+        "Arroio do Sal","Arroio do Tigre","Arroio dos Ratos","Arroio Grande","Arvorezinha","Augusto Pestana",
+        "Áurea","Bagé","Balneário Pinhal","Barão","Barão de Cotegipe","Barão do Triunfo","Barra do Guarita",
+        "Barra do Quaraí","Barra do Ribeiro","Barra do Rio Azul","Barra Funda","Barracão","Barros Cassal",
+        "Benjamin Constant do Sul","Bento Gonçalves","Boa Vista das Missões","Boa Vista do Buricá","Boa Vista do Cadeado",
+        "Boa Vista do Incra","Boa Vista do Sul","Bom Jesus","Bom Princípio","Bom Progresso","Bom Retiro do Sul",
+        "Boqueirão do Leão","Bossoroca","Bozano","Braga","Brochier","Butiá","Caçapava do Sul","Cacequi",
+        "Cachoeira do Sul","Cachoeirinha","Cacique Doble","Caibaté","Caiçara","Camaquã","Camargo","Cambará do Sul",
+        "Campestre da Serra","Campina das Missões","Campinas do Sul","Campo Bom","Campo Novo","Campos Borges",
+        "Candelária","Cândido Godói","Candiota","Canela","Canguçu","Canoas","Canudos do Vale","Capão Bonito do Sul",
+        "Capão da Canoa","Capão do Cipó","Capão do Leão","Capela de Santana","Capitão","Capivari do Sul","Caraá",
+        "Carazinho","Carlos Barbosa","Carlos Gomes","Casca","Caseiros","Catuípe","Caxias do Sul","Centenário",
+        "Cerrito","Cerro Branco","Cerro Grande","Cerro Grande do Sul","Cerro Largo","Chapada","Charqueadas",
+        "Charrua","Chiapetta","Chuí","Chuvisca","Cidreira","Ciríaco","Colinas","Colorado","Condor","Constantina",
+        "Coqueiro Baixo","Coqueiros do Sul","Coronel Barros","Coronel Bicaco","Coronel Pilar","Cotiporã","Coxilha",
+        "Crissiumal","Cristal","Cristal do Sul","Cruz Alta","Cruzaltense","Cruzeiro do Sul","David Canabarro",
+        "Derrubadas","Dezesseis de Novembro","Dilermando de Aguiar","Dois Irmãos","Dois Irmãos das Missões",
+        "Dois Lajeados","Dom Feliciano","Dom Pedrito","Dom Pedro de Alcântara","Dona Francisca","Doutor Maurício Cardoso",
+        "Doutor Ricardo","Eldorado do Sul","Encantado","Encruzilhada do Sul","Engenho Velho","Entre Rios do Sul",
+        "Entre-Ijuís","Erebango","Erechim","Ernestina","Erval Grande","Erval Seco","Esmeralda","Esperança do Sul",
+        "Espumoso","Estação","Estância Velha","Esteio","Estrela","Estrela Velha","Eugênio de Castro","Fagundes Varela",
+        "Farroupilha","Faxinal do Soturno","Faxinalzinho","Fazenda Vilanova","Feliz","Flores da Cunha","Floriano Peixoto",
+        "Fontoura Xavier","Formigueiro","Forquetinha","Fortaleza dos Valos","Frederico Westphalen","Garibaldi","Garruchos",
+        "Gaurama","General Câmara","Gentil","Getúlio Vargas","Giruá","Glorinha","Gramado","Gramado dos Loureiros",
+        "Gramado Xavier","Gravataí","Guabiju","Guaíba","Guaporé","Guarani das Missões","Harmonia","Herval","Herveiras",
+        "Horizontina","Hulha Negra","Humaitá","Ibarama","Ibiaçá","Ibiraiaras","Ibirapuitã","Ibirubá","Igrejinha","Ijuí",
+        "Ilópolis","Imbé","Independência","Inhacorá","Ipê","Ipiranga do Sul","Iraí","Itaara","Itacurubi","Itapuca",
+        "Itaqui","Itati","Itatiba do Sul","Ivorá","Ivoti","Jaboticaba","Jacuizinho","Jacutinga","Jaguarão","Jaguari",
+        "Jaquirana","Jari","Jóia","Júlio de Castilhos","Lagoa Bonita do Sul","Lagoa dos Três Cantos","Lagoa Vermelha",
+        "Lagoão","Lajeado","Lajeado do Bugre","Lavras do Sul","Liberato Salzano","Lindolfo Collor","Linha Nova",
+        "Maçambará","Machadinho","Mampituba","Manoel Viana","Maquiné","Maratá","Marau","Marcelino Ramos","Mariana Pimentel",
+        "Mariano Moro","Marques de Souza","Mata","Mato Castelhano","Mato Leitão","Mato Queimado","Maximiliano de Almeida",
+        "Minas do Leão","Miraguaí","Montauri","Monte Alegre dos Campos","Monte Belo do Sul","Montenegro","Mormaço",
+        "Morrinhos do Sul","Morro Redondo","Morro Reuter","Mostardas","Muçum","Muitos Capões","Muliterno","Não-Me-Toque",
+        "Nicolau Vergueiro","Nonoai","Nova Alvorada","Nova Araçá","Nova Bassano","Nova Boa Vista","Nova Bréscia",
+        "Nova Candelária","Nova Esperança do Sul","Nova Hartz","Nova Pádua","Nova Palma","Nova Petrópolis","Nova Prata",
+        "Nova Ramada","Nova Roma do Sul","Nova Santa Rita","Novo Barreiro","Novo Cabrais","Novo Hamburgo","Novo Machado",
+        "Novo Tiradentes","Novo Xingu","Osório","Paim Filho","Palmares do Sul","Palmeira das Missões","Palmitinho","Panambi",
+        "Pantano Grande","Paraí","Paraíso do Sul","Pareci Novo","Parobé","Passa Sete","Passo do Sobrado","Passo Fundo",
+        "Paulo Bento","Paverama","Pedras Altas","Pedro Osório","Pejuçara","Pelotas","Picada Café","Pinhal","Pinhal da Serra",
+        "Pinhal Grande","Pinheirinho do Vale","Pinheiro Machado","Pirapó","Piratini","Planalto","Poço das Antas","Pontão",
+        "Ponte Preta","Portão","Porto Alegre","Porto Lucena","Porto Mauá","Porto Vera Cruz","Porto Xavier","Pouso Novo",
+        "Presidente Lucena","Progresso","Protásio Alves","Putinga","Quaraí","Quatro Irmãos","Quevedos","Quilombo","Redentora",
+        "Relvado","Restinga Sêca","Rio dos Índios","Rio Grande","Rio Pardo","Riozinho","Roca Sales","Rodeio Bonito","Rolador",
+        "Rolante","Ronda Alta","Rondinha","Roque Gonzales","Rosário do Sul","Sagrada Família","Saldanha Marinho",
+        "Salto do Jacuí","Salvador das Missões","Salvador do Sul","Sananduva","Santa Bárbara do Sul","Santa Cecília do Sul",
+        "Santa Clara do Sul","Santa Cruz do Sul","Santa Margarida do Sul","Santa Maria","Santa Maria do Herval","Santa Rosa",
+        "Santa Tereza","Santa Vitória do Palmar","Santana da Boa Vista","Santana do Livramento","Santiago","Santo Ângelo",
+        "Santo Antônio da Patrulha","Santo Antônio das Missões","Santo Antônio do Palma","Santo Antônio do Planalto",
+        "Santo Augusto","Santo Cristo","Santo Expedito do Sul","São Borja","São Domingos do Sul","São Francisco de Assis",
+        "São Francisco de Paula","São Gabriel","São Jerônimo","São João da Urtiga","São João do Polesine","São Jorge",
+        "São José das Missões","São José do Herval","São José do Hortêncio","São José do Inhacorá","São José do Norte",
+        "São José do Ouro","São José do Sul","São José dos Ausentes","São Leopoldo","São Lourenço do Sul","São Luiz Gonzaga",
+        "São Marcos","São Martinho","São Martinho da Serra","São Miguel das Missões","São Nicolau","São Paulo das Missões",
+        "São Pedro da Serra","São Pedro do Butiá","São Pedro do Sul","São Sebastião do Caí","São Sepé","São Valentim",
+        "São Valentim do Sul","São Valério do Sul","São Vendelino","São Vicente do Sul","Sapiranga","Sapucaia do Sul",
+        "Sarandi","Seberi","Sede Nova","Segredo","Selbach","Senador Salgado Filho","Sentinela do Sul","Serafina Corrêa",
+        "Sério","Sertão","Sertão Santana","Sete de Setembro","Severiano de Almeida","Silveira Martins","Sinimbu","Sobradinho",
+        "Soledade","Tabaí","Tapejara","Tapera","Tapes","Taquara","Taquari","Taquaruçu do Sul","Tavares","Tenente Portela",
+        "Terra de Areia","Teutônia","Tio Hugo","Tiradentes do Sul","Toropi","Torres","Tramandaí","Travesseiro","Três Arroios",
+        "Três Cachoeiras","Três Coroas","Três de Maio","Três Forquilhas","Três Palmeiras","Três Passos","Trindade do Sul",
+        "Triunfo","Tucunduva","Tunas","Tupanci do Sul","Tupanciretã","Tupandi","Tuparendi","Turuçu","Ubiretama","União da Serra",
+        "Unistalda","Uruguaiana","Vacaria","Vale do Sol","Vale Real","Vale Verde","Vanini","Venâncio Aires","Vera Cruz",
+        "Veranópolis","Vespasiano Correa","Viadutos","Viamão","Vicente Dutra","Victor Graeff","Vila Flores","Vila Lângaro",
+        "Vila Maria","Vila Nova do Sul","Vista Alegre","Vista Alegre do Prata","Vista Gaúcha","Vitória das Missões","Westfália","Xangri-lá"
+    ];
+
+    // Variáveis globais
+    let periodo = { inicio: null, fim: null };   // armazenar no formato ISO (yyyy-mm-dd) interno
+    let registros = [];   
+
+    // helpers
+    function formatDateBR(dateISO) {
+        if (!dateISO) return '';
+        const [year, month, day] = dateISO.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    function parseDateBR(dateBR) {
+        const partes = dateBR.split('/');
+        if (partes.length !== 3) return null;
+        return `${partes[2]}-${partes[1]}-${partes[0]}`;
+    }
+    function getDiaSemana(dateISO) {
+        if (!dateISO) return '';
+        const d = new Date(dateISO + 'T12:00:00');
+        const dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        return dias[d.getDay()];
+    }
+    function isDataValidaNoPeriodo(dataISO) {
+        if (!periodo.inicio || !periodo.fim) return false;
+        return (dataISO >= periodo.inicio && dataISO <= periodo.fim);
+    }
+
+    // atualizar tabela principal
+    function atualizarTabela() {
+        const relatorioArea = document.getElementById('relatorioArea');
+        const relatorioBody = document.getElementById('relatorioBody');
+        if (registros.length === 0) {
+            relatorioArea.style.display = 'none';
+            return;
+        }
+        relatorioArea.style.display = 'block';
+        relatorioBody.innerHTML = '';
+        registros.forEach(reg => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${reg.vendedor}</td>
+                <td>${formatDateBR(reg.dataVisitaISO)}</td>
+                <td>${reg.diaSemana}</td>
+                <td>${reg.cidade}</td>
+                <td>${reg.cliente}</td>
+                <td>${reg.contato}</td>
+                <td>${reg.motivo}</td>
+                <td>${reg.descricao || ''}</td>
+            `;
+            relatorioBody.appendChild(row);
+        });
+    }
+
+    function adicionarRegistro(reg) {
+        registros.push(reg);
+        atualizarTabela();
+    }
+
+    // criar card de visita com estilo e autocomplete bonito
+    let cardCounter = 0;
+    function criarCardVisita() {
+        if (!periodo.inicio || !periodo.fim) {
+            Swal.fire({ icon: 'warning', title: 'Período não definido', text: 'Defina as datas inicial e final antes de adicionar uma visita.', confirmButtonColor: '#1f7542' });
+            return;
+        }
+        const vendedorAtual = document.getElementById('vendedorSelect').value;
+        if (!vendedorAtual) {
+            Swal.fire({ icon: 'error', title: 'Vendedor obrigatório', text: 'Selecione o vendedor no campo superior.', confirmButtonColor: '#1f7542' });
+            return;
+        }
+
+        const cardId = `card_${Date.now()}_${cardCounter++}`;
+        const container = document.getElementById('registrosDinamicos');
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'visit-card';
+        cardDiv.setAttribute('data-id', cardId);
+        cardDiv.innerHTML = `
+            <h3>📌 Novo atendimento - ${vendedorAtual}</h3>
+            <div class="grid-5">
+                <div class="field" style="position:relative;">
+                    <label>🏙️ CIDADE *</label>
+                    <input type="text" class="cidade-autocomplete" placeholder="Digite ou selecione" autocomplete="off">
+                    <div class="city-suggest" style="display:none;"></div>
+                </div>
+                <div class="field"><label>🏢 CLIENTE *</label><input type="text" class="cliente-input" placeholder="Nome do cliente"></div>
+                <div class="field"><label>📞 CONTATO *</label><input type="text" class="contato-input" placeholder="Nome do contato"></div>
+                <div class="field"><label>📅 DATA VISITA *</label><input type="date" class="data-visita-iso" style="font-family: monospace;"></div>
+                <div class="field"><label>📌 MOTIVO *</label>
+                    <select class="motivo-select">
+                        <option value="">Selecione</option><option value="Visita">Visita</option><option value="Entrega">Entrega</option>
+                        <option value="Cobrança">Cobrança</option><option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <div class="field desc-wrapper" style="display:none;"><label>✏️ DESCRIÇÃO (Outro)</label><textarea rows="2" class="desc-text" placeholder="Descreva detalhes..."></textarea></div>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn-cancelar">Cancelar</button>
+                <button class="btn-salvar">💾 Salvar visita</button>
+            </div>
+            <div class="card-error" style="color:#b33; font-size:0.7rem; margin-top: 8px;"></div>
+        `;
+        container.appendChild(cardDiv);
+
+        const cidadeInput = cardDiv.querySelector('.cidade-autocomplete');
+        const suggestBox = cardDiv.querySelector('.city-suggest');
+        const motivoSelect = cardDiv.querySelector('.motivo-select');
+        const descWrapper = cardDiv.querySelector('.desc-wrapper');
+        const errorSpan = cardDiv.querySelector('.card-error');
+
+        // Autocomplete sugestões
+        cidadeInput.addEventListener('input', () => {
+            const val = cidadeInput.value.toLowerCase();
+            if (!val) { suggestBox.style.display = 'none'; return; }
+            const filtradas = municipiosRS.filter(c => c.toLowerCase().includes(val)).slice(0, 8);
+            suggestBox.innerHTML = filtradas.map(c => `<div class="sugg-item">${c}</div>`).join('');
+            suggestBox.style.display = filtradas.length ? 'block' : 'none';
+            suggestBox.querySelectorAll('.sugg-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    cidadeInput.value = el.innerText;
+                    suggestBox.style.display = 'none';
+                });
+            });
+        });
+        document.addEventListener('click', (e) => { if (!cardDiv.contains(e.target)) suggestBox.style.display = 'none'; });
+
+        motivoSelect.addEventListener('change', () => {
+            descWrapper.style.display = motivoSelect.value === 'Outro' ? 'block' : 'none';
+        });
+
+        const salvarBtn = cardDiv.querySelector('.btn-salvar');
+        const cancelarBtn = cardDiv.querySelector('.btn-cancelar');
+        salvarBtn.addEventListener('click', () => {
+            const cidade = cidadeInput.value.trim();
+            const cliente = cardDiv.querySelector('.cliente-input').value.trim();
+            const contato = cardDiv.querySelector('.contato-input').value.trim();
+            const dataISO = cardDiv.querySelector('.data-visita-iso').value;
+            const motivo = motivoSelect.value;
+            let descricao = cardDiv.querySelector('.desc-text')?.value.trim() || '';
+
+            if (!cidade || !municipiosRS.includes(cidade)) { errorSpan.innerText = 'Cidade inválida (deve estar na lista RS).'; return; }
+            if (!cliente) { errorSpan.innerText = 'Cliente obrigatório.'; return; }
+            if (!contato) { errorSpan.innerText = 'Contato obrigatório.'; return; }
+            if (!dataISO) { errorSpan.innerText = 'Selecione a data da visita.'; return; }
+            if (!isDataValidaNoPeriodo(dataISO)) { errorSpan.innerText = `Data fora do período definido (${formatDateBR(periodo.inicio)} até ${formatDateBR(periodo.fim)}).`; return; }
+            if (!motivo) { errorSpan.innerText = 'Motivo obrigatório.'; return; }
+            if (motivo === 'Outro' && !descricao) { errorSpan.innerText = 'Descreva o motivo "Outro".'; return; }
+
+            const diaSemana = getDiaSemana(dataISO);
+            adicionarRegistro({
+                vendedor: vendedorAtual,
+                cidade, cliente, contato, dataVisitaISO: dataISO, diaSemana, motivo,
+                descricao: motivo === 'Outro' ? descricao : (motivo !== 'Outro' ? '' : descricao)
+            });
+            cardDiv.remove();
+            Swal.fire({ icon: 'success', title: 'Salvo!', text: 'Visita registrada com sucesso.', toast: true, position: 'top-end', showConfirmButton: false, timer: 1700 });
+        });
+        cancelarBtn.addEventListener('click', () => cardDiv.remove());
+    }
+
+    // Configuração dos calendários bonitos (flatpickr) com formato brasileiro
+    const inicioPicker = flatpickr("#dataInicial", {
+        dateFormat: "d/m/Y",
+        locale: "pt",
+        allowInput: false,
+        onChange: function(selectedDates, dateStr) { /* nada extra */ }
+    });
+    const fimPicker = flatpickr("#dataFinal", {
+        dateFormat: "d/m/Y",
+        locale: "pt",
+        allowInput: false
+    });
+
+    document.getElementById('definirPeriodoBtn').addEventListener('click', () => {
+        const inicioBR = document.getElementById('dataInicial').value;
+        const fimBR = document.getElementById('dataFinal').value;
+        if (!inicioBR || !fimBR) { Swal.fire({ icon: 'error', title: 'Datas incompletas', text: 'Selecione as duas datas usando o calendário.' }); return; }
+        const inicioISO = parseDateBR(inicioBR);
+        const fimISO = parseDateBR(fimBR);
+        if (!inicioISO || !fimISO || inicioISO > fimISO) { Swal.fire('Atenção', 'Data inicial não pode ser maior que a data final.', 'warning'); return; }
+        periodo.inicio = inicioISO;
+        periodo.fim = fimISO;
+        document.getElementById('periodoStatus').innerHTML = `📅 Período ativo: ${inicioBR} (${getDiaSemana(inicioISO)}) até ${fimBR} (${getDiaSemana(fimISO)})`;
+    });
+
+    document.getElementById('addVisitaBtn').addEventListener('click', criarCardVisita);
+
+    // PDF com cabeçalho personalizado
+    document.getElementById('exportPDFBtn').addEventListener('click', async () => {
+        if (registros.length === 0) { Swal.fire('Nada para exportar', 'Nenhum registro de visita salvo.', 'info'); return; }
+        const vendedorNome = document.getElementById('vendedorSelect').value;
+        const periodoTexto = `${formatDateBR(periodo.inicio)} a ${formatDateBR(periodo.fim)}`;
+        const pdfContent = document.createElement('div');
+        pdfContent.style.padding = '24px';
+        pdfContent.style.fontFamily = 'Inter, sans-serif';
+        pdfContent.style.backgroundColor = '#fff';
+        pdfContent.style.width = '1000px';
+        pdfContent.innerHTML = `
+            <div style="text-align:center; border-bottom: 3px solid #1f7542; padding-bottom: 12px;">
+                <h1 style="color:#1f7542;">RELATÓRIO DE VISITAS EDS</h1>
+                <p><strong>Vendedor:</strong> ${vendedorNome} &nbsp;|&nbsp; <strong>Período:</strong> ${periodoTexto}</p>
+            </div>
+            <table border="1" cellpadding="6" style="width:100%; border-collapse: collapse; margin-top:20px;">
+                <thead><tr style="background:#e0f0da;"><th>Data</th><th>Dia</th><th>Cidade</th><th>Cliente</th><th>Contato</th><th>Motivo</th><th>Descrição</th></tr></thead>
+                <tbody>${registros.map(r => `<tr><td>${formatDateBR(r.dataVisitaISO)}</td><td>${r.diaSemana}</td><td>${r.cidade}</td><td>${r.cliente}</td><td>${r.contato}</td><td>${r.motivo}</td><td>${r.descricao || ''}</td></tr>`).join('')}</tbody>
+            </table>
+            <p style="font-size:10px; margin-top:20px;">Emitido em ${new Date().toLocaleString()}</p>
+        `;
+        document.body.appendChild(pdfContent);
+        const canvas = await html2canvas(pdfContent, { scale: 2 });
+        document.body.removeChild(pdfContent);
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 190;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        pdf.save(`Relatorio_EDS_${vendedorNome}_${periodo.inicio}_a_${periodo.fim}.pdf`);
+        Swal.fire({ icon: 'success', title: 'PDF gerado!', text: 'Download iniciado com sucesso.', confirmButtonColor: '#1f7542' });
+    });
+
+    document.getElementById('limparTodosBtn').addEventListener('click', () => {
+        if (registros.length === 0) return;
+        Swal.fire({
+            title: 'Limpar histórico?', text: 'Todos os registros serão removidos permanentemente.', icon: 'question', showCancelButton: true, confirmButtonColor: '#c0392b', confirmButtonText: 'Sim, limpar'
+        }).then((res) => { if (res.isConfirmed) { registros = []; atualizarTabela(); document.getElementById('registrosDinamicos').innerHTML = ''; Swal.fire('Limpo!', 'Histórico removido.', 'success'); } });
+    });
+</script>
+</body>
+</html>
