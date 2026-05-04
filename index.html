@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Relatório de Visitas EDS | Sistema Comercial</title>
-    <!-- Google Fonts + Flatpickr (Calendário Moderno) + SweetAlert2 (Popups bonitos) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <title>Relatório de Visitas EDS | KM + Datas BR</title>
+    <!-- Google Fonts + Flatpickr (Calendário Moderno) + SweetAlert2 (Popups) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- html2canvas + jspdf para PDF -->
+    <!-- html2canvas + jspdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -27,19 +27,15 @@
             padding: 32px 24px;
         }
 
-        /* Container principal estilo glassmorphism */
         .glass-container {
             max-width: 1400px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(0px);
             border-radius: 48px;
             box-shadow: 0 25px 45px -12px rgba(0, 32, 0, 0.35);
             overflow: hidden;
-            transition: all 0.2s ease;
         }
 
-        /* Header elegante */
         .hero-header {
             background: linear-gradient(120deg, #0f4024, #1f7542);
             padding: 2rem 2.5rem;
@@ -48,7 +44,6 @@
         .hero-header h1 {
             font-size: 2rem;
             font-weight: 700;
-            letter-spacing: -0.3px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -56,10 +51,8 @@
         .hero-header p {
             opacity: 0.85;
             margin-top: 8px;
-            font-weight: 400;
         }
 
-        /* formulário principal */
         .form-panel {
             padding: 2rem 2.5rem;
             background: #ffffff;
@@ -82,7 +75,7 @@
         .input-group label {
             display: block;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #2e6b3e;
@@ -118,7 +111,6 @@
             color: white;
             cursor: pointer;
             transition: 0.2s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         .btn-primary:hover {
             background: #0e5a34;
@@ -144,8 +136,16 @@
             align-items: center;
             gap: 8px;
         }
+        .km-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            background: #f9fff7;
+            padding: 16px 20px;
+            border-radius: 32px;
+        }
 
-        /* cards de visita com design clean */
+        /* Cards de visita */
         .visit-card {
             background: #ffffff;
             border-radius: 32px;
@@ -153,7 +153,6 @@
             padding: 1.5rem;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
             border: 1px solid #e0f0db;
-            transition: all 0.2s;
         }
         .visit-card h3 {
             font-size: 1.2rem;
@@ -202,7 +201,6 @@
         .city-suggest div {
             padding: 8px 16px;
             cursor: pointer;
-            transition: 0.1s;
         }
         .city-suggest div:hover {
             background: #e0f5da;
@@ -214,14 +212,15 @@
             border-radius: 32px;
             color: white;
             font-weight: 600;
+            cursor: pointer;
         }
         .btn-cancelar {
             background: #f1f3ef;
             border: 1px solid #cbdcc5;
             padding: 8px 22px;
             border-radius: 32px;
+            cursor: pointer;
         }
-
         .relatorio-tabela {
             margin: 0 2rem 2rem 2rem;
             overflow-x: auto;
@@ -231,7 +230,6 @@
             border-collapse: collapse;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         th {
             background: #e0f0da;
@@ -255,25 +253,29 @@
             padding: 1rem;
             font-size: 0.7rem;
             color: #527a45;
-            border-top: 1px solid #e0f0da;
         }
         @media (max-width: 760px) {
             .form-panel { padding: 1.5rem; }
             .visit-card { margin: 1rem; }
+        }
+        .obrigatorio-asterisco::after {
+            content: " *";
+            color: #d9534f;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 <div class="glass-container" id="reportContainer">
     <div class="hero-header">
-        <h1>🌿 Relatório de Visitas EDS</h1>
-        <p>Gestão inteligente de atendimentos | Vendedores Gaúchos</p>
+        <h1>📋 Relatório de Visitas EDS</h1>
+        <p>Sistema completo com KM do veículo | Datas no formato brasileiro (dd/mm/aaaa)</p>
     </div>
 
     <div class="form-panel">
         <div class="flex-row">
             <div class="input-group">
-                <label>👤 VENDEDOR *</label>
+                <label class="obrigatorio-asterisco">👤 VENDEDOR</label>
                 <select id="vendedorSelect">
                     <option value="">-- Selecione o vendedor --</option>
                     <option value="ALESSANDRO">ALESSANDRO</option>
@@ -288,11 +290,11 @@
                 </select>
             </div>
             <div class="input-group">
-                <label>📅 DATA INÍCIAL (PERÍODO)</label>
+                <label class="obrigatorio-asterisco">📅 DATA INÍCIAL (PERÍODO)</label>
                 <input type="text" id="dataInicial" placeholder="dd/mm/aaaa" readonly>
             </div>
             <div class="input-group">
-                <label>📅 DATA FINAL (PERÍODO)</label>
+                <label class="obrigatorio-asterisco">📅 DATA FINAL (PERÍODO)</label>
                 <input type="text" id="dataFinal" placeholder="dd/mm/aaaa" readonly>
             </div>
             <div class="input-group">
@@ -300,7 +302,20 @@
                 <button class="btn-primary" id="definirPeriodoBtn">✅ CONFIRMAR PERÍODO</button>
             </div>
         </div>
-        <div id="periodoStatus" class="status-badge">⏳ Nenhum período definido</div>
+
+        <!-- KM INICIAL e KM FINAL do veículo (obrigatórios) -->
+        <div class="km-row">
+            <div class="input-group" style="flex:1">
+                <label class="obrigatorio-asterisco">🚗 KM INICIAL (Veículo)</label>
+                <input type="number" id="kmInicial" placeholder="Ex: 15200" step="1" min="0">
+            </div>
+            <div class="input-group" style="flex:1">
+                <label class="obrigatorio-asterisco">🚗 KM FINAL (Veículo)</label>
+                <input type="number" id="kmFinal" placeholder="Ex: 15840" step="1" min="0">
+            </div>
+        </div>
+
+        <div id="periodoStatus" class="status-badge" style="margin-top: 16px;">⏳ Nenhum período definido</div>
     </div>
 
     <!-- Botão + cards dinâmicos -->
@@ -315,98 +330,92 @@
         <div class="relatorio-tabela">
             <table id="relatorioTable">
                 <thead>
-                    <tr><th>Vendedor</th><th>Data</th><th>Dia semana</th><th>Cidade</th><th>Cliente</th><th>Contato</th><th>Motivo</th><th>Descrição</th></tr>
+                    <tr><th>Vendedor</th><th>Data (BR)</th><th>Dia semana</th><th>Cidade</th><th>Cliente</th><th>Contato</th><th>Motivo</th><th>Descrição</th></tr>
                 </thead>
                 <tbody id="relatorioBody"></tbody>
             </table>
         </div>
         <div class="toolbar">
-            <button class="btn-primary" id="exportPDFBtn">📄 GERAR PDF COMPLETO</button>
+            <button class="btn-primary" id="exportPDFBtn">📄 GERAR PDF (completo)</button>
             <button class="btn-secondary" id="limparTodosBtn">🗑️ Limpar histórico</button>
         </div>
     </div>
-    <footer>Base com 497 municípios do RS | Datas no formato brasileiro (dd/mm/aaaa) | Calendário visual aprimorado</footer>
+    <footer>Base com 497 municípios do RS | Datas sempre em formato brasileiro (dd/mm/aaaa) | KM Inicial e Final obrigatórios</footer>
 </div>
 
 <script>
     // --------------------------------------------------------------
-    // LISTA OFICIAL DE MUNICÍPIOS (497)
+    // LISTA OFICIAL DE MUNICÍPIOS DO RS (497)
     // --------------------------------------------------------------
     const municipiosRS = [
         "Aceguá","Água Santa","Agudo","Ajuricaba","Alecrim","Alegrete","Alegria","Almirante Tamandaré do Sul",
         "Alpestre","Alto Alegre","Alto Feliz","Alvorada","Amaral Ferrador","Ametista do Sul","André da Rocha",
-        "Anta Gorda","Antônio Prado","Arambaré","Araricá","Aratiba","Arroio do Meio","Arroio do Padre",
-        "Arroio do Sal","Arroio do Tigre","Arroio dos Ratos","Arroio Grande","Arvorezinha","Augusto Pestana",
-        "Áurea","Bagé","Balneário Pinhal","Barão","Barão de Cotegipe","Barão do Triunfo","Barra do Guarita",
-        "Barra do Quaraí","Barra do Ribeiro","Barra do Rio Azul","Barra Funda","Barracão","Barros Cassal",
-        "Benjamin Constant do Sul","Bento Gonçalves","Boa Vista das Missões","Boa Vista do Buricá","Boa Vista do Cadeado",
-        "Boa Vista do Incra","Boa Vista do Sul","Bom Jesus","Bom Princípio","Bom Progresso","Bom Retiro do Sul",
-        "Boqueirão do Leão","Bossoroca","Bozano","Braga","Brochier","Butiá","Caçapava do Sul","Cacequi",
-        "Cachoeira do Sul","Cachoeirinha","Cacique Doble","Caibaté","Caiçara","Camaquã","Camargo","Cambará do Sul",
-        "Campestre da Serra","Campina das Missões","Campinas do Sul","Campo Bom","Campo Novo","Campos Borges",
-        "Candelária","Cândido Godói","Candiota","Canela","Canguçu","Canoas","Canudos do Vale","Capão Bonito do Sul",
-        "Capão da Canoa","Capão do Cipó","Capão do Leão","Capela de Santana","Capitão","Capivari do Sul","Caraá",
-        "Carazinho","Carlos Barbosa","Carlos Gomes","Casca","Caseiros","Catuípe","Caxias do Sul","Centenário",
-        "Cerrito","Cerro Branco","Cerro Grande","Cerro Grande do Sul","Cerro Largo","Chapada","Charqueadas",
-        "Charrua","Chiapetta","Chuí","Chuvisca","Cidreira","Ciríaco","Colinas","Colorado","Condor","Constantina",
-        "Coqueiro Baixo","Coqueiros do Sul","Coronel Barros","Coronel Bicaco","Coronel Pilar","Cotiporã","Coxilha",
-        "Crissiumal","Cristal","Cristal do Sul","Cruz Alta","Cruzaltense","Cruzeiro do Sul","David Canabarro",
-        "Derrubadas","Dezesseis de Novembro","Dilermando de Aguiar","Dois Irmãos","Dois Irmãos das Missões",
+        "Anta Gorda","Antônio Prado","Arambaré","Araricá","Aratiba","Arroio do Meio","Arroio do Padre","Arroio do Sal",
+        "Arroio do Tigre","Arroio dos Ratos","Arroio Grande","Arvorezinha","Augusto Pestana","Áurea","Bagé","Balneário Pinhal",
+        "Barão","Barão de Cotegipe","Barão do Triunfo","Barra do Guarita","Barra do Quaraí","Barra do Ribeiro","Barra do Rio Azul",
+        "Barra Funda","Barracão","Barros Cassal","Benjamin Constant do Sul","Bento Gonçalves","Boa Vista das Missões",
+        "Boa Vista do Buricá","Boa Vista do Cadeado","Boa Vista do Incra","Boa Vista do Sul","Bom Jesus","Bom Princípio",
+        "Bom Progresso","Bom Retiro do Sul","Boqueirão do Leão","Bossoroca","Bozano","Braga","Brochier","Butiá","Caçapava do Sul",
+        "Cacequi","Cachoeira do Sul","Cachoeirinha","Cacique Doble","Caibaté","Caiçara","Camaquã","Camargo","Cambará do Sul",
+        "Campestre da Serra","Campina das Missões","Campinas do Sul","Campo Bom","Campo Novo","Campos Borges","Candelária",
+        "Cândido Godói","Candiota","Canela","Canguçu","Canoas","Canudos do Vale","Capão Bonito do Sul","Capão da Canoa",
+        "Capão do Cipó","Capão do Leão","Capela de Santana","Capitão","Capivari do Sul","Caraá","Carazinho","Carlos Barbosa",
+        "Carlos Gomes","Casca","Caseiros","Catuípe","Caxias do Sul","Centenário","Cerrito","Cerro Branco","Cerro Grande",
+        "Cerro Grande do Sul","Cerro Largo","Chapada","Charqueadas","Charrua","Chiapetta","Chuí","Chuvisca","Cidreira","Ciríaco",
+        "Colinas","Colorado","Condor","Constantina","Coqueiro Baixo","Coqueiros do Sul","Coronel Barros","Coronel Bicaco",
+        "Coronel Pilar","Cotiporã","Coxilha","Crissiumal","Cristal","Cristal do Sul","Cruz Alta","Cruzaltense","Cruzeiro do Sul",
+        "David Canabarro","Derrubadas","Dezesseis de Novembro","Dilermando de Aguiar","Dois Irmãos","Dois Irmãos das Missões",
         "Dois Lajeados","Dom Feliciano","Dom Pedrito","Dom Pedro de Alcântara","Dona Francisca","Doutor Maurício Cardoso",
-        "Doutor Ricardo","Eldorado do Sul","Encantado","Encruzilhada do Sul","Engenho Velho","Entre Rios do Sul",
-        "Entre-Ijuís","Erebango","Erechim","Ernestina","Erval Grande","Erval Seco","Esmeralda","Esperança do Sul",
-        "Espumoso","Estação","Estância Velha","Esteio","Estrela","Estrela Velha","Eugênio de Castro","Fagundes Varela",
-        "Farroupilha","Faxinal do Soturno","Faxinalzinho","Fazenda Vilanova","Feliz","Flores da Cunha","Floriano Peixoto",
-        "Fontoura Xavier","Formigueiro","Forquetinha","Fortaleza dos Valos","Frederico Westphalen","Garibaldi","Garruchos",
-        "Gaurama","General Câmara","Gentil","Getúlio Vargas","Giruá","Glorinha","Gramado","Gramado dos Loureiros",
-        "Gramado Xavier","Gravataí","Guabiju","Guaíba","Guaporé","Guarani das Missões","Harmonia","Herval","Herveiras",
-        "Horizontina","Hulha Negra","Humaitá","Ibarama","Ibiaçá","Ibiraiaras","Ibirapuitã","Ibirubá","Igrejinha","Ijuí",
-        "Ilópolis","Imbé","Independência","Inhacorá","Ipê","Ipiranga do Sul","Iraí","Itaara","Itacurubi","Itapuca",
-        "Itaqui","Itati","Itatiba do Sul","Ivorá","Ivoti","Jaboticaba","Jacuizinho","Jacutinga","Jaguarão","Jaguari",
-        "Jaquirana","Jari","Jóia","Júlio de Castilhos","Lagoa Bonita do Sul","Lagoa dos Três Cantos","Lagoa Vermelha",
-        "Lagoão","Lajeado","Lajeado do Bugre","Lavras do Sul","Liberato Salzano","Lindolfo Collor","Linha Nova",
-        "Maçambará","Machadinho","Mampituba","Manoel Viana","Maquiné","Maratá","Marau","Marcelino Ramos","Mariana Pimentel",
-        "Mariano Moro","Marques de Souza","Mata","Mato Castelhano","Mato Leitão","Mato Queimado","Maximiliano de Almeida",
-        "Minas do Leão","Miraguaí","Montauri","Monte Alegre dos Campos","Monte Belo do Sul","Montenegro","Mormaço",
-        "Morrinhos do Sul","Morro Redondo","Morro Reuter","Mostardas","Muçum","Muitos Capões","Muliterno","Não-Me-Toque",
-        "Nicolau Vergueiro","Nonoai","Nova Alvorada","Nova Araçá","Nova Bassano","Nova Boa Vista","Nova Bréscia",
-        "Nova Candelária","Nova Esperança do Sul","Nova Hartz","Nova Pádua","Nova Palma","Nova Petrópolis","Nova Prata",
-        "Nova Ramada","Nova Roma do Sul","Nova Santa Rita","Novo Barreiro","Novo Cabrais","Novo Hamburgo","Novo Machado",
-        "Novo Tiradentes","Novo Xingu","Osório","Paim Filho","Palmares do Sul","Palmeira das Missões","Palmitinho","Panambi",
-        "Pantano Grande","Paraí","Paraíso do Sul","Pareci Novo","Parobé","Passa Sete","Passo do Sobrado","Passo Fundo",
-        "Paulo Bento","Paverama","Pedras Altas","Pedro Osório","Pejuçara","Pelotas","Picada Café","Pinhal","Pinhal da Serra",
-        "Pinhal Grande","Pinheirinho do Vale","Pinheiro Machado","Pirapó","Piratini","Planalto","Poço das Antas","Pontão",
-        "Ponte Preta","Portão","Porto Alegre","Porto Lucena","Porto Mauá","Porto Vera Cruz","Porto Xavier","Pouso Novo",
-        "Presidente Lucena","Progresso","Protásio Alves","Putinga","Quaraí","Quatro Irmãos","Quevedos","Quilombo","Redentora",
-        "Relvado","Restinga Sêca","Rio dos Índios","Rio Grande","Rio Pardo","Riozinho","Roca Sales","Rodeio Bonito","Rolador",
-        "Rolante","Ronda Alta","Rondinha","Roque Gonzales","Rosário do Sul","Sagrada Família","Saldanha Marinho",
-        "Salto do Jacuí","Salvador das Missões","Salvador do Sul","Sananduva","Santa Bárbara do Sul","Santa Cecília do Sul",
-        "Santa Clara do Sul","Santa Cruz do Sul","Santa Margarida do Sul","Santa Maria","Santa Maria do Herval","Santa Rosa",
-        "Santa Tereza","Santa Vitória do Palmar","Santana da Boa Vista","Santana do Livramento","Santiago","Santo Ângelo",
-        "Santo Antônio da Patrulha","Santo Antônio das Missões","Santo Antônio do Palma","Santo Antônio do Planalto",
+        "Doutor Ricardo","Eldorado do Sul","Encantado","Encruzilhada do Sul","Engenho Velho","Entre Rios do Sul","Entre-Ijuís",
+        "Erebango","Erechim","Ernestina","Erval Grande","Erval Seco","Esmeralda","Esperança do Sul","Espumoso","Estação",
+        "Estância Velha","Esteio","Estrela","Estrela Velha","Eugênio de Castro","Fagundes Varela","Farroupilha","Faxinal do Soturno",
+        "Faxinalzinho","Fazenda Vilanova","Feliz","Flores da Cunha","Floriano Peixoto","Fontoura Xavier","Formigueiro",
+        "Forquetinha","Fortaleza dos Valos","Frederico Westphalen","Garibaldi","Garruchos","Gaurama","General Câmara","Gentil",
+        "Getúlio Vargas","Giruá","Glorinha","Gramado","Gramado dos Loureiros","Gramado Xavier","Gravataí","Guabiju","Guaíba",
+        "Guaporé","Guarani das Missões","Harmonia","Herval","Herveiras","Horizontina","Hulha Negra","Humaitá","Ibarama","Ibiaçá",
+        "Ibiraiaras","Ibirapuitã","Ibirubá","Igrejinha","Ijuí","Ilópolis","Imbé","Independência","Inhacorá","Ipê","Ipiranga do Sul",
+        "Iraí","Itaara","Itacurubi","Itapuca","Itaqui","Itati","Itatiba do Sul","Ivorá","Ivoti","Jaboticaba","Jacuizinho","Jacutinga",
+        "Jaguarão","Jaguari","Jaquirana","Jari","Jóia","Júlio de Castilhos","Lagoa Bonita do Sul","Lagoa dos Três Cantos","Lagoa Vermelha",
+        "Lagoão","Lajeado","Lajeado do Bugre","Lavras do Sul","Liberato Salzano","Lindolfo Collor","Linha Nova","Maçambará","Machadinho",
+        "Mampituba","Manoel Viana","Maquiné","Maratá","Marau","Marcelino Ramos","Mariana Pimentel","Mariano Moro","Marques de Souza",
+        "Mata","Mato Castelhano","Mato Leitão","Mato Queimado","Maximiliano de Almeida","Minas do Leão","Miraguaí","Montauri",
+        "Monte Alegre dos Campos","Monte Belo do Sul","Montenegro","Mormaço","Morrinhos do Sul","Morro Redondo","Morro Reuter",
+        "Mostardas","Muçum","Muitos Capões","Muliterno","Não-Me-Toque","Nicolau Vergueiro","Nonoai","Nova Alvorada","Nova Araçá",
+        "Nova Bassano","Nova Boa Vista","Nova Bréscia","Nova Candelária","Nova Esperança do Sul","Nova Hartz","Nova Pádua",
+        "Nova Palma","Nova Petrópolis","Nova Prata","Nova Ramada","Nova Roma do Sul","Nova Santa Rita","Novo Barreiro","Novo Cabrais",
+        "Novo Hamburgo","Novo Machado","Novo Tiradentes","Novo Xingu","Osório","Paim Filho","Palmares do Sul","Palmeira das Missões",
+        "Palmitinho","Panambi","Pantano Grande","Paraí","Paraíso do Sul","Pareci Novo","Parobé","Passa Sete","Passo do Sobrado",
+        "Passo Fundo","Paulo Bento","Paverama","Pedras Altas","Pedro Osório","Pejuçara","Pelotas","Picada Café","Pinhal","Pinhal da Serra",
+        "Pinhal Grande","Pinheirinho do Vale","Pinheiro Machado","Pirapó","Piratini","Planalto","Poço das Antas","Pontão","Ponte Preta",
+        "Portão","Porto Alegre","Porto Lucena","Porto Mauá","Porto Vera Cruz","Porto Xavier","Pouso Novo","Presidente Lucena","Progresso",
+        "Protásio Alves","Putinga","Quaraí","Quatro Irmãos","Quevedos","Quilombo","Redentora","Relvado","Restinga Sêca","Rio dos Índios",
+        "Rio Grande","Rio Pardo","Riozinho","Roca Sales","Rodeio Bonito","Rolador","Rolante","Ronda Alta","Rondinha","Roque Gonzales",
+        "Rosário do Sul","Sagrada Família","Saldanha Marinho","Salto do Jacuí","Salvador das Missões","Salvador do Sul","Sananduva",
+        "Santa Bárbara do Sul","Santa Cecília do Sul","Santa Clara do Sul","Santa Cruz do Sul","Santa Margarida do Sul","Santa Maria",
+        "Santa Maria do Herval","Santa Rosa","Santa Tereza","Santa Vitória do Palmar","Santana da Boa Vista","Santana do Livramento",
+        "Santiago","Santo Ângelo","Santo Antônio da Patrulha","Santo Antônio das Missões","Santo Antônio do Palma","Santo Antônio do Planalto",
         "Santo Augusto","Santo Cristo","Santo Expedito do Sul","São Borja","São Domingos do Sul","São Francisco de Assis",
-        "São Francisco de Paula","São Gabriel","São Jerônimo","São João da Urtiga","São João do Polesine","São Jorge",
-        "São José das Missões","São José do Herval","São José do Hortêncio","São José do Inhacorá","São José do Norte",
-        "São José do Ouro","São José do Sul","São José dos Ausentes","São Leopoldo","São Lourenço do Sul","São Luiz Gonzaga",
-        "São Marcos","São Martinho","São Martinho da Serra","São Miguel das Missões","São Nicolau","São Paulo das Missões",
-        "São Pedro da Serra","São Pedro do Butiá","São Pedro do Sul","São Sebastião do Caí","São Sepé","São Valentim",
-        "São Valentim do Sul","São Valério do Sul","São Vendelino","São Vicente do Sul","Sapiranga","Sapucaia do Sul",
-        "Sarandi","Seberi","Sede Nova","Segredo","Selbach","Senador Salgado Filho","Sentinela do Sul","Serafina Corrêa",
-        "Sério","Sertão","Sertão Santana","Sete de Setembro","Severiano de Almeida","Silveira Martins","Sinimbu","Sobradinho",
-        "Soledade","Tabaí","Tapejara","Tapera","Tapes","Taquara","Taquari","Taquaruçu do Sul","Tavares","Tenente Portela",
+        "São Francisco de Paula","São Gabriel","São Jerônimo","São João da Urtiga","São João do Polesine","São Jorge","São José das Missões",
+        "São José do Herval","São José do Hortêncio","São José do Inhacorá","São José do Norte","São José do Ouro","São José do Sul",
+        "São José dos Ausentes","São Leopoldo","São Lourenço do Sul","São Luiz Gonzaga","São Marcos","São Martinho","São Martinho da Serra",
+        "São Miguel das Missões","São Nicolau","São Paulo das Missões","São Pedro da Serra","São Pedro do Butiá","São Pedro do Sul",
+        "São Sebastião do Caí","São Sepé","São Valentim","São Valentim do Sul","São Valério do Sul","São Vendelino","São Vicente do Sul",
+        "Sapiranga","Sapucaia do Sul","Sarandi","Seberi","Sede Nova","Segredo","Selbach","Senador Salgado Filho","Sentinela do Sul",
+        "Serafina Corrêa","Sério","Sertão","Sertão Santana","Sete de Setembro","Severiano de Almeida","Silveira Martins","Sinimbu",
+        "Sobradinho","Soledade","Tabaí","Tapejara","Tapera","Tapes","Taquara","Taquari","Taquaruçu do Sul","Tavares","Tenente Portela",
         "Terra de Areia","Teutônia","Tio Hugo","Tiradentes do Sul","Toropi","Torres","Tramandaí","Travesseiro","Três Arroios",
-        "Três Cachoeiras","Três Coroas","Três de Maio","Três Forquilhas","Três Palmeiras","Três Passos","Trindade do Sul",
-        "Triunfo","Tucunduva","Tunas","Tupanci do Sul","Tupanciretã","Tupandi","Tuparendi","Turuçu","Ubiretama","União da Serra",
-        "Unistalda","Uruguaiana","Vacaria","Vale do Sol","Vale Real","Vale Verde","Vanini","Venâncio Aires","Vera Cruz",
-        "Veranópolis","Vespasiano Correa","Viadutos","Viamão","Vicente Dutra","Victor Graeff","Vila Flores","Vila Lângaro",
-        "Vila Maria","Vila Nova do Sul","Vista Alegre","Vista Alegre do Prata","Vista Gaúcha","Vitória das Missões","Westfália","Xangri-lá"
+        "Três Cachoeiras","Três Coroas","Três de Maio","Três Forquilhas","Três Palmeiras","Três Passos","Trindade do Sul","Triunfo",
+        "Tucunduva","Tunas","Tupanci do Sul","Tupanciretã","Tupandi","Tuparendi","Turuçu","Ubiretama","União da Serra","Unistalda",
+        "Uruguaiana","Vacaria","Vale do Sol","Vale Real","Vale Verde","Vanini","Venâncio Aires","Vera Cruz","Veranópolis",
+        "Vespasiano Correa","Viadutos","Viamão","Vicente Dutra","Victor Graeff","Vila Flores","Vila Lângaro","Vila Maria",
+        "Vila Nova do Sul","Vista Alegre","Vista Alegre do Prata","Vista Gaúcha","Vitória das Missões","Westfália","Xangri-lá"
     ];
 
-    // Variáveis globais
-    let periodo = { inicio: null, fim: null };   // armazenar no formato ISO (yyyy-mm-dd) interno
-    let registros = [];   
+    // Estado global
+    let periodo = { inicio: null, fim: null };   // formato ISO (yyyy-mm-dd)
+    let registros = [];  
 
-    // helpers
+    // Funções auxiliares com formato brasileiro
     function formatDateBR(dateISO) {
         if (!dateISO) return '';
         const [year, month, day] = dateISO.split('-');
@@ -428,7 +437,7 @@
         return (dataISO >= periodo.inicio && dataISO <= periodo.fim);
     }
 
-    // atualizar tabela principal
+    // Atualizar tabela de registros
     function atualizarTabela() {
         const relatorioArea = document.getElementById('relatorioArea');
         const relatorioBody = document.getElementById('relatorioBody');
@@ -459,7 +468,7 @@
         atualizarTabela();
     }
 
-    // criar card de visita com estilo e autocomplete bonito
+    // Card de visita com campos obrigatórios e autocomplete cidade
     let cardCounter = 0;
     function criarCardVisita() {
         if (!periodo.inicio || !periodo.fim) {
@@ -471,12 +480,22 @@
             Swal.fire({ icon: 'error', title: 'Vendedor obrigatório', text: 'Selecione o vendedor no campo superior.', confirmButtonColor: '#1f7542' });
             return;
         }
+        // Validar KM obrigatórios antes de abrir card
+        const kmIni = document.getElementById('kmInicial').value;
+        const kmFim = document.getElementById('kmFinal').value;
+        if (!kmIni || !kmFim) {
+            Swal.fire({ icon: 'error', title: 'KM do veículo obrigatório', text: 'Preencha o KM Inicial e KM Final do veículo antes de registrar visitas.', confirmButtonColor: '#1f7542' });
+            return;
+        }
+        if (parseFloat(kmFim) < parseFloat(kmIni)) {
+            Swal.fire({ icon: 'error', title: 'KM inválido', text: 'KM Final não pode ser menor que o KM Inicial.', confirmButtonColor: '#1f7542' });
+            return;
+        }
 
-        const cardId = `card_${Date.now()}_${cardCounter++}`;
         const container = document.getElementById('registrosDinamicos');
         const cardDiv = document.createElement('div');
         cardDiv.className = 'visit-card';
-        cardDiv.setAttribute('data-id', cardId);
+        cardDiv.setAttribute('data-id', `card_${Date.now()}_${cardCounter++}`);
         cardDiv.innerHTML = `
             <h3>📌 Novo atendimento - ${vendedorAtual}</h3>
             <div class="grid-5">
@@ -490,8 +509,8 @@
                 <div class="field"><label>📅 DATA VISITA *</label><input type="date" class="data-visita-iso" style="font-family: monospace;"></div>
                 <div class="field"><label>📌 MOTIVO *</label>
                     <select class="motivo-select">
-                        <option value="">Selecione</option><option value="Visita">Visita</option><option value="Entrega">Entrega</option>
-                        <option value="Cobrança">Cobrança</option><option value="Outro">Outro</option>
+                        <option value="">Selecione</option><option value="Visita">Visita</option>
+                        <option value="Entrega">Entrega</option><option value="Cobrança">Cobrança</option><option value="Outro">Outro</option>
                     </select>
                 </div>
                 <div class="field desc-wrapper" style="display:none;"><label>✏️ DESCRIÇÃO (Outro)</label><textarea rows="2" class="desc-text" placeholder="Descreva detalhes..."></textarea></div>
@@ -510,7 +529,6 @@
         const descWrapper = cardDiv.querySelector('.desc-wrapper');
         const errorSpan = cardDiv.querySelector('.card-error');
 
-        // Autocomplete sugestões
         cidadeInput.addEventListener('input', () => {
             const val = cidadeInput.value.toLowerCase();
             if (!val) { suggestBox.style.display = 'none'; return; }
@@ -544,7 +562,7 @@
             if (!cliente) { errorSpan.innerText = 'Cliente obrigatório.'; return; }
             if (!contato) { errorSpan.innerText = 'Contato obrigatório.'; return; }
             if (!dataISO) { errorSpan.innerText = 'Selecione a data da visita.'; return; }
-            if (!isDataValidaNoPeriodo(dataISO)) { errorSpan.innerText = `Data fora do período definido (${formatDateBR(periodo.inicio)} até ${formatDateBR(periodo.fim)}).`; return; }
+            if (!isDataValidaNoPeriodo(dataISO)) { errorSpan.innerText = `Data fora do período definido (${formatDateBR(periodo.inicio)} a ${formatDateBR(periodo.fim)}).`; return; }
             if (!motivo) { errorSpan.innerText = 'Motivo obrigatório.'; return; }
             if (motivo === 'Outro' && !descricao) { errorSpan.innerText = 'Descreva o motivo "Outro".'; return; }
 
@@ -552,26 +570,18 @@
             adicionarRegistro({
                 vendedor: vendedorAtual,
                 cidade, cliente, contato, dataVisitaISO: dataISO, diaSemana, motivo,
-                descricao: motivo === 'Outro' ? descricao : (motivo !== 'Outro' ? '' : descricao)
+                descricao: motivo === 'Outro' ? descricao : ''
             });
             cardDiv.remove();
-            Swal.fire({ icon: 'success', title: 'Salvo!', text: 'Visita registrada com sucesso.', toast: true, position: 'top-end', showConfirmButton: false, timer: 1700 });
+            Swal.fire({ icon: 'success', title: 'Salvo!', text: 'Visita registrada com sucesso.', toast: true, position: 'top-end', showConfirmButton: false, timer: 1600 });
         });
         cancelarBtn.addEventListener('click', () => cardDiv.remove());
     }
 
-    // Configuração dos calendários bonitos (flatpickr) com formato brasileiro
-    const inicioPicker = flatpickr("#dataInicial", {
-        dateFormat: "d/m/Y",
-        locale: "pt",
-        allowInput: false,
-        onChange: function(selectedDates, dateStr) { /* nada extra */ }
-    });
-    const fimPicker = flatpickr("#dataFinal", {
-        dateFormat: "d/m/Y",
-        locale: "pt",
-        allowInput: false
-    });
+    // Calendários flatpickr com formato brasileiro
+    flatpickr.localize(flatpickr.l10ns.pt);
+    const inicioPicker = flatpickr("#dataInicial", { dateFormat: "d/m/Y", locale: "pt", allowInput: false });
+    const fimPicker = flatpickr("#dataFinal", { dateFormat: "d/m/Y", locale: "pt", allowInput: false });
 
     document.getElementById('definirPeriodoBtn').addEventListener('click', () => {
         const inicioBR = document.getElementById('dataInicial').value;
@@ -587,10 +597,14 @@
 
     document.getElementById('addVisitaBtn').addEventListener('click', criarCardVisita);
 
-    // PDF com cabeçalho personalizado
+    // PDF COM KM E DATAS BRASILEIRAS
     document.getElementById('exportPDFBtn').addEventListener('click', async () => {
         if (registros.length === 0) { Swal.fire('Nada para exportar', 'Nenhum registro de visita salvo.', 'info'); return; }
         const vendedorNome = document.getElementById('vendedorSelect').value;
+        if (!vendedorNome) { Swal.fire('Vendedor não selecionado', 'Selecione o vendedor antes de gerar o PDF.', 'warning'); return; }
+        const kmIni = document.getElementById('kmInicial').value;
+        const kmFim = document.getElementById('kmFinal').value;
+        if (!kmIni || !kmFim) { Swal.fire('KM obrigatório', 'Preencha KM Inicial e Final do veículo.', 'warning'); return; }
         const periodoTexto = `${formatDateBR(periodo.inicio)} a ${formatDateBR(periodo.fim)}`;
         const pdfContent = document.createElement('div');
         pdfContent.style.padding = '24px';
@@ -601,12 +615,13 @@
             <div style="text-align:center; border-bottom: 3px solid #1f7542; padding-bottom: 12px;">
                 <h1 style="color:#1f7542;">RELATÓRIO DE VISITAS EDS</h1>
                 <p><strong>Vendedor:</strong> ${vendedorNome} &nbsp;|&nbsp; <strong>Período:</strong> ${periodoTexto}</p>
+                <p><strong>🚗 KM Inicial:</strong> ${kmIni} km &nbsp;&nbsp;|&nbsp;&nbsp; <strong>🚗 KM Final:</strong> ${kmFim} km &nbsp;|&nbsp; <strong>Total percorrido:</strong> ${parseInt(kmFim) - parseInt(kmIni)} km</p>
             </div>
             <table border="1" cellpadding="6" style="width:100%; border-collapse: collapse; margin-top:20px;">
-                <thead><tr style="background:#e0f0da;"><th>Data</th><th>Dia</th><th>Cidade</th><th>Cliente</th><th>Contato</th><th>Motivo</th><th>Descrição</th></tr></thead>
+                <thead><tr style="background:#e0f0da;"><th>Data (BR)</th><th>Dia</th><th>Cidade</th><th>Cliente</th><th>Contato</th><th>Motivo</th><th>Descrição</th></tr></thead>
                 <tbody>${registros.map(r => `<tr><td>${formatDateBR(r.dataVisitaISO)}</td><td>${r.diaSemana}</td><td>${r.cidade}</td><td>${r.cliente}</td><td>${r.contato}</td><td>${r.motivo}</td><td>${r.descricao || ''}</td></tr>`).join('')}</tbody>
             </table>
-            <p style="font-size:10px; margin-top:20px;">Emitido em ${new Date().toLocaleString()}</p>
+            <p style="font-size:10px; margin-top:20px;">Emitido em ${new Date().toLocaleString('pt-BR')}</p>
         `;
         document.body.appendChild(pdfContent);
         const canvas = await html2canvas(pdfContent, { scale: 2 });
