@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Relatório de Visitas EDS | KM + Datas BR</title>
+    <title>Relatório de Visitas EDS | KM + Datas BR + Persistência</title>
     <!-- Google Fonts + Flatpickr (Calendário Moderno) + SweetAlert2 (Popups) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -246,6 +246,7 @@
             justify-content: flex-end;
             gap: 16px;
             margin: 0 2rem 2rem 2rem;
+            flex-wrap: wrap;
         }
         footer {
             background: #f4fbf0;
@@ -269,7 +270,7 @@
 <div class="glass-container" id="reportContainer">
     <div class="hero-header">
         <h1>📋 Relatório de Visitas EDS</h1>
-        <p>Sistema completo com KM do veículo | Datas no formato brasileiro (dd/mm/aaaa)</p>
+        <p>Sistema completo com KM do veículo | Datas no formato brasileiro (dd/mm/aaaa) | Dados salvos automaticamente</p>
     </div>
 
     <div class="form-panel">
@@ -337,11 +338,15 @@
         </div>
         <div class="toolbar">
             <button class="btn-primary" id="exportPDFBtn">📄 GERAR PDF (completo)</button>
+            <button class="btn-secondary" id="exportarDadosBtn">💾 Exportar dados (JSON)</button>
+            <button class="btn-secondary" id="importarDadosBtn">📂 Importar dados (JSON)</button>
             <button class="btn-secondary" id="limparTodosBtn">🗑️ Limpar histórico</button>
         </div>
     </div>
-    <footer>Base com 497 municípios do RS | Datas sempre em formato brasileiro (dd/mm/aaaa) | KM Inicial e Final obrigatórios</footer>
+    <footer>Base com 497 municípios do RS | Datas sempre em formato brasileiro (dd/mm/aaaa) | KM Inicial e Final obrigatórios | Dados salvos no navegador</footer>
 </div>
+
+<input type="file" id="importarArquivo" style="display: none;" accept=".json">
 
 <script>
     // --------------------------------------------------------------
@@ -463,9 +468,109 @@
         });
     }
 
+    // ------------------- PERSISTÊNCIA LOCALSTORAGE -------------------
+    function salvarEstadoCompleto() {
+        const estado = {
+            periodo: periodo,
+            registros: registros,
+            kmInicial: document.getElementById('kmInicial').value,
+            kmFinal: document.getElementById('kmFinal').value,
+            periodoStatusHTML: document.getElementById('periodoStatus').innerHTML,
+            vendedorSelecionado: document.getElementById('vendedorSelect').value
+        };
+        localStorage.setItem('relatorioEDS', JSON.stringify(estado));
+    }
+
+    function carregarEstadoCompleto() {
+        const salvo = localStorage.getItem('relatorioEDS');
+        if (!salvo) return;
+        try {
+            const estado = JSON.parse(salvo);
+            
+            // Restaurar período
+            if (estado.periodo && estado.periodo.inicio && estado.periodo.fim) {
+                periodo = estado.periodo;
+                document.getElementById('dataInicial').value = formatDateBR(periodo.inicio);
+                document.getElementById('dataFinal').value = formatDateBR(periodo.fim);
+                document.getElementById('periodoStatus').innerHTML = estado.periodoStatusHTML || 
+                    `📅 Período ativo: ${formatDateBR(periodo.inicio)} (${getDiaSemana(periodo.inicio)}) até ${formatDateBR(periodo.fim)} (${getDiaSemana(periodo.fim)})`;
+            }
+            
+            // Restaurar registros
+            registros = estado.registros || [];
+            atualizarTabela();
+            
+            // Restaurar KM
+            if (estado.kmInicial) document.getElementById('kmInicial').value = estado.kmInicial;
+            if (estado.kmFinal) document.getElementById('kmFinal').value = estado.kmFinal;
+            
+            // Restaurar vendedor selecionado
+            if (estado.vendedorSelecionado) document.getElementById('vendedorSelect').value = estado.vendedorSelecionado;
+        } catch(e) { console.warn("Erro ao carregar estado salvo", e); }
+    }
+
+    // Função para exportar dados para JSON
+    function exportarDados() {
+        const estadoParaExportar = {
+            periodo: periodo,
+            registros: registros,
+            kmInicial: document.getElementById('kmInicial').value,
+            kmFinal: document.getElementById('kmFinal').value,
+            vendedorSelecionado: document.getElementById('vendedorSelect').value,
+            dataExportacao: new Date().toISOString()
+        };
+        const dadosStr = JSON.stringify(estadoParaExportar, null, 2);
+        const blob = new Blob([dadosStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio_eds_backup_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        Swal.fire('Exportado!', 'Arquivo JSON salvo com sucesso.', 'success');
+    }
+
+    // Função para importar dados de JSON
+    function importarDados(file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const dadosImportados = JSON.parse(ev.target.result);
+                // Validar estrutura básica
+                if (dadosImportados.periodo && dadosImportados.registros !== undefined) {
+                    periodo = dadosImportados.periodo;
+                    registros = dadosImportados.registros;
+                    if (dadosImportados.kmInicial !== undefined) document.getElementById('kmInicial').value = dadosImportados.kmInicial;
+                    if (dadosImportados.kmFinal !== undefined) document.getElementById('kmFinal').value = dadosImportados.kmFinal;
+                    if (dadosImportados.vendedorSelecionado) document.getElementById('vendedorSelect').value = dadosImportados.vendedorSelecionado;
+                    
+                    // Atualizar campos de data na tela
+                    if (periodo.inicio) document.getElementById('dataInicial').value = formatDateBR(periodo.inicio);
+                    if (periodo.fim) document.getElementById('dataFinal').value = formatDateBR(periodo.fim);
+                    if (periodo.inicio && periodo.fim) {
+                        document.getElementById('periodoStatus').innerHTML = `📅 Período ativo: ${formatDateBR(periodo.inicio)} (${getDiaSemana(periodo.inicio)}) até ${formatDateBR(periodo.fim)} (${getDiaSemana(periodo.fim)})`;
+                    }
+                    atualizarTabela();
+                    salvarEstadoCompleto();
+                    Swal.fire('Importado!', 'Dados restaurados com sucesso.', 'success');
+                } else {
+                    throw new Error('Estrutura inválida');
+                }
+            } catch (err) {
+                Swal.fire('Erro', 'Arquivo inválido ou corrompido.', 'error');
+            }
+            // Limpar input para permitir importar o mesmo arquivo novamente
+            document.getElementById('importarArquivo').value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    // ------------------- FIM PERSISTÊNCIA -------------------
+
     function adicionarRegistro(reg) {
         registros.push(reg);
         atualizarTabela();
+        salvarEstadoCompleto(); // salvar automaticamente
     }
 
     // Card de visita com campos obrigatórios e autocomplete cidade
@@ -593,6 +698,7 @@
         periodo.inicio = inicioISO;
         periodo.fim = fimISO;
         document.getElementById('periodoStatus').innerHTML = `📅 Período ativo: ${inicioBR} (${getDiaSemana(inicioISO)}) até ${fimBR} (${getDiaSemana(fimISO)})`;
+        salvarEstadoCompleto();
     });
 
     document.getElementById('addVisitaBtn').addEventListener('click', criarCardVisita);
@@ -636,12 +742,32 @@
         Swal.fire({ icon: 'success', title: 'PDF gerado!', text: 'Download iniciado com sucesso.', confirmButtonColor: '#1f7542' });
     });
 
+    // Eventos de exportar/importar dados
+    document.getElementById('exportarDadosBtn').addEventListener('click', exportarDados);
+    document.getElementById('importarDadosBtn').addEventListener('click', () => {
+        document.getElementById('importarArquivo').click();
+    });
+    document.getElementById('importarArquivo').addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            importarDados(e.target.files[0]);
+        }
+    });
+
+    // Limpar histórico com persistência
     document.getElementById('limparTodosBtn').addEventListener('click', () => {
         if (registros.length === 0) return;
         Swal.fire({
             title: 'Limpar histórico?', text: 'Todos os registros serão removidos permanentemente.', icon: 'question', showCancelButton: true, confirmButtonColor: '#c0392b', confirmButtonText: 'Sim, limpar'
-        }).then((res) => { if (res.isConfirmed) { registros = []; atualizarTabela(); document.getElementById('registrosDinamicos').innerHTML = ''; Swal.fire('Limpo!', 'Histórico removido.', 'success'); } });
+        }).then((res) => { if (res.isConfirmed) { registros = []; atualizarTabela(); document.getElementById('registrosDinamicos').innerHTML = ''; salvarEstadoCompleto(); Swal.fire('Limpo!', 'Histórico removido.', 'success'); } });
     });
+
+    // Salvar também quando KM ou vendedor forem alterados
+    document.getElementById('kmInicial').addEventListener('change', () => salvarEstadoCompleto());
+    document.getElementById('kmFinal').addEventListener('change', () => salvarEstadoCompleto());
+    document.getElementById('vendedorSelect').addEventListener('change', () => salvarEstadoCompleto());
+
+    // Carregar dados salvos ao iniciar
+    carregarEstadoCompleto();
 </script>
 </body>
 </html>
